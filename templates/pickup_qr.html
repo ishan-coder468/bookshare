@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>📲 Show this QR code to the owner to pick up the book!</h2>
+<p><strong>{{ book.title }}</strong> by {{ book.author }}</p>
+<img src="data:image/png;base64,{{ img_data }}" alt="QR Code">
+<br><br>
+<a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+{% endblock %}

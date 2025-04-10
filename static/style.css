@@ -1,0 +1,19 @@
+body {
+    background: #f0f4f8;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .card {
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  .btn {
+    border-radius: 10px;
+  }
+  
+  .book-cover {
+    width: 120px;
+    height: auto;
+    border-radius: 4px;
+}

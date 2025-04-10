@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2 class="mb-4">📚 Your Dashboard</h2>
+
+  {% if has_overdue %}
+    <div class="alert alert-danger">
+      ⚠️ You have overdue books! Please return them ASAP.
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-6">
+      <h4 class="mb-3">Your Books</h4>
+      {% for book in owned_books %}
+        <div class="card mb-3">
+          <div class="row g-0">
+            {% if book.cover_image %}
+              <div class="col-md-3">
+                <img src="{{ url_for('static', filename='uploads/' ~ book.cover_image) }}" class="img-fluid rounded-start" alt="Cover Image">
+              </div>
+            {% endif %}
+            <div class="col-md-9">
+              <div class="card-body">
+                <h5 class="card-title">{{ book.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
+                <p class="card-text">{{ book.description or '' }}</p>
+
+                {% if book.is_borrowed %}
+                  <span class="badge bg-warning text-dark">Borrowed</span>
+                  <p class="mt-2 mb-0"><strong>Borrower:</strong> {{ book.borrower.name }}</p>
+                  <p class="mb-0"><strong>Due:</strong> {{ book.due_date.strftime('%Y-%m-%d') }}</p>
+                {% else %}
+                  <span class="badge bg-success">Available</span>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('delete_book', book_id=book.id) }}" class="mt-2">
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p>You haven't added any books yet.</p>
+      {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+      <h4 class="mb-3">Borrowed Book</h4>
+      {% if borrowed_books %}
+        {% for book in borrowed_books %}
+          <div class="card mb-3">
+            <div class="row g-0">
+              {% if book.cover_image %}
+                <div class="col-md-3">
+                  <img src="{{ url_for('static', filename='uploads/' ~ book.cover_image) }}" class="img-fluid rounded-start" alt="Cover Image">
+                </div>
+              {% endif %}
+              <div class="col-md-9">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    {{ book.title }}
+                    {% if book.due_date and book.due_date < current_time %}
+                      <span class="badge bg-danger">Overdue</span>
+                    {% endif %}
+                  </h5>
+                  <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
+                  <p class="card-text">{{ book.description or '' }}</p>
+                  <p><strong>Owner:</strong> {{ book.owner.name }}</p>
+                  <p><strong>Class:</strong> {{ book.owner.class_name }} - {{ book.owner.division }}</p>
+                  <p><strong>Due Date:</strong> {{ book.due_date.strftime('%Y-%m-%d') }}</p>
+
+                  <div class="d-flex flex-wrap gap-2 mt-3">
+                    <form method="POST" action="{{ url_for('return_book', book_id=book.id) }}">
+                      <button type="submit" class="btn btn-sm btn-primary">Return Book</button>
+                    </form>
+                    <a href="{{ url_for('show_qr_code', book_id=book.id) }}" class="btn btn-sm btn-secondary">📲 Show QR Code</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>You haven’t borrowed any books yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('add_book') }}" class="btn btn-success">➕ Add New Book</a>
+    <a href="{{ url_for('available_books') }}" class="btn btn-info">📖 Borrow a Book</a>
+    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary mt-3">📖 View Borrowing History</a>
+  </div>
+{% endblock %}
+
+<hr class="my-4">
+<h4>📖 Borrowing History</h4>
+<div class="row">
+  <div class="col-md-6">
+    <h5 class="mb-3">You Borrowed & Returned</h5>
+    {% if borrowed_history %}
+      <ul class="list-group">
+        {% for book in borrowed_history %}
+          <li class="list-group-item">
+            <strong>{{ book.title }}</strong> by {{ book.author }}
+            <br><small>Returned on: {{ book.returned_at.strftime('%Y-%m-%d') }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>You haven't returned any books yet.</p>
+    {% endif %}
+  </div>
+  <div class="col-md-6">
+    <h5 class="mb-3">You Lent & Got Back</h5>
+    {% if lent_history %}
+      <ul class="list-group">
+        {% for book in lent_history %}
+          <li class="list-group-item">
+            <strong>{{ book.title }}</strong> by {{ book.author }}
+            <br><small>Returned on: {{ book.returned_at.strftime('%Y-%m-%d') }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No one has returned your books yet.</p>
+    {% endif %}
+  </div>
+</div>

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>📚 Available Books</h3>
+    <div class="row">
+        {% if books %}
+            {% for book in books %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="row g-0">
+                            {% if book.cover_image %}
+                                <div class="col-md-4">
+                                    <img src="{{ url_for('static', filename='uploads/' ~ book.cover_image) }}" class="img-fluid rounded-start" alt="Cover image for {{ book.title }}">
+                                </div>
+                            {% endif %}
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        {{ book.title }}
+                                        {% if book in favorites %}
+                                            <span title="Favorited">❤️</span>
+                                        {% endif %}
+                                    </h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ book.author }}</h6>
+                                    <p class="card-text">{{ book.description }}</p>
+                                    <p><strong>Owner:</strong> {{ book.owner.name }} ({{ book.owner.class_name }} - {{ book.owner.division }})</p>
+                                    
+                                    {% if book.reviews %}
+                                        <div class="mt-2">
+                                            <strong>⭐ Average Rating:</strong>
+                                            {{ "%.1f"|format(book.reviews|map(attribute='rating')|sum / book.reviews|length) }} / 5
+                                            <ul class="list-unstyled mt-1">
+                                                {% for review in book.reviews[:2] %}
+                                                    <li><strong>{{ review.user.name }}:</strong> {{ review.rating }}⭐ - {{ review.comment }}</li>
+                                                 {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if not user_has_borrowed %}
+                                    <form action="{{ url_for('borrow_book', book_id=book.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-success">Borrow</button>
+                                    </form>                                    
+                                    {% else %}
+                                        <p class="text-warning">You have already borrowed a book.</p>
+                                    {% endif %}
+
+                                    <form action="{{ url_for('toggle_favorite', book_id=book.id) }}" method="POST" class="d-inline">
+                                        <button class="btn btn-outline-danger btn-sm" title="Toggle favorite">
+                                            {% if book in favorites %}💔{% else %}❤️{% endif %}
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('recommend_book', book_id=book.id) }}" method="POST" class="mt-2">
+                                        <div class="input-group">
+                                            <input type="email" name="friend_email" class="form-control form-control-sm" placeholder="Friend's email" required>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">📨 Recommend</button>
+                                        </div>
+                                    </form>                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No books are currently available to borrow.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

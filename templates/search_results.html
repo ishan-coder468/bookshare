@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h3>Search Results for "{{ query }}"</h3>
+  {% if books %}
+    <div class="row g-4">
+      {% for book in books %}
+        <div class="col-md-4">
+          <div class="card p-3">
+            <h5>{{ book.title }}</h5>
+            <p>Author: {{ book.author }}</p>
+            <p><strong>Owner:</strong> {{ book.owner.name }} (Class: {{ book.owner.class_name }}, Division: {{ book.owner.division }})</p>
+            {% if not book.is_borrowed %}
+              <form action="{{ url_for('borrow_book', book_id=book.id) }}" method="POST">
+                <button type="submit" class="btn btn-warning btn-sm">Borrow</button>
+              </form>
+            {% else %}
+              <span class="badge bg-secondary">Borrowed</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No books found matching your search.</p>
+  {% endif %}
+{% endblock %}

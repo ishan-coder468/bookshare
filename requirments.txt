@@ -1,0 +1,8 @@
+Flask==2.3.2
+Flask-Login==0.6.3
+Flask-Mail==0.9.1
+Flask-SQLAlchemy==3.1.1
+gunicorn==21.2.0
+qrcode==7.4.2
+Pillow==10.2.0
+email-validator==2.1.0.post1
